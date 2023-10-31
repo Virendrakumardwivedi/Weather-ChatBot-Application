@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather ChatBot</title>
+    <style >
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ef8e96;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #chat {
+            background-color: #e3e7ea;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            margin-top: 20px;
+            box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+        }
+        
+        p {
+            margin-bottom: 10px;
+        }
+        
+        #user-input {
+            width: 23%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color:#b3c53b;
+            text-align:center;
+            justify-content:space-between;
+            display: block; 
+            margin: 0 auto; 
+        }
+        #myh1{
+            text-align:center;
+            margin-top: 50px; 
+
+        }
+        
+        #submit {
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            display: block; 
+            margin: 0 auto; 
+        }
+        
+        #submit:hover {
+            background-color: #0056b3;
+        }
+        
+    </style>
+</head>
+<body>
+    <h1 id="myh1">This is my ChatBot</h1>
+    <div id="chat"></div>
+    <input id="user-input" type="text" placeholder="Ask a question..." />
+    <button id="submit">Submit</button>
+    <script>
+        const chatDiv = document.getElementById("chat");
+        const userInput = document.getElementById("user-input");
+        const submitButton = document.getElementById("submit");
+        
+        submitButton.addEventListener("click", () => {
+            const userMessage = userInput.value;
+            if (userMessage.trim() === "") {
+                return;
+            }
+        
+            // Display user's message in the chat
+            appendMessage("You: " + userMessage);
+        
+            fetch("/get_weather", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ content: userMessage }),
+            })
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error("Network response was not ok");
+                }
+            })
+            .then((data) => {
+                try {
+                    // Update this line to access the "message" key
+                    appendMessage("ChatBot: " + data.message);
+                } catch (error) {
+                    console.error("Error parsing JSON response:", error);
+                }
+                userInput.value = "";
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+        });
+        
+        function appendMessage(message) {
+            const messageDiv = document.createElement("div");
+            messageDiv.textContent = message;
+            chatDiv.appendChild(messageDiv);
+        }
+        
+    </script>
+</body>
+</html>
